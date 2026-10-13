@@ -1,0 +1,131 @@
+
+interface InventoryProduct {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+    category: string;
+}
+
+let inventory: InventoryProduct[] = [
+    { id: 1, name: "Laptop", price: 45000, quantity: 5, category: "Electronics" },
+    { id: 2, name: "T-Shirt", price: 599, quantity: 10, category: "Clothing" },
+    { id: 3, name: "Notebook", price: 100, quantity: 20, category: "Books" },
+    { id: 4, name: "Headphones", price: 1500, quantity: 0, category: "Accessories" }
+];
+
+const form = document.getElementById("productForm") as HTMLFormElement;
+const nameInput = document.getElementById("productName") as HTMLInputElement;
+const priceInput = document.getElementById("productPrice") as HTMLInputElement;
+const quantityInput = document.getElementById("productQuantity") as HTMLInputElement;
+const categoryInput = document.getElementById("productCategory") as HTMLSelectElement;
+const searchInput = document.getElementById("searchInput") as HTMLInputElement;
+const table = document.getElementById("productTable") as HTMLTableSectionElement;
+const totalElement = document.getElementById("totalProducts") as HTMLElement;
+const availableElement = document.getElementById("availableProducts") as HTMLElement;
+const valueElement = document.getElementById("inventoryValue") as HTMLElement;
+const emptyMessage = document.getElementById("emptyMessage") as HTMLElement;
+
+function updateSummary(): void {
+    totalElement.textContent = String(inventory.length);
+
+    const available = inventory.filter(product => product.quantity > 0);
+    availableElement.textContent = String(available.length);
+
+    const totalValue = inventory.reduce(
+        (sum, product) => sum + product.price * product.quantity,
+        0
+    );
+
+    valueElement.textContent = "₹" + totalValue.toLocaleString("en-IN");
+}
+
+function displayProducts(search: string = ""): void {
+    table.innerHTML = "";
+
+    const filteredProducts = inventory.filter(product =>
+        product.name.toLowerCase().includes(search.toLowerCase()) ||
+        product.category.toLowerCase().includes(search.toLowerCase())
+    );
+
+    emptyMessage.style.display =
+        filteredProducts.length === 0 ? "block" : "none";
+
+    filteredProducts.forEach(product => {
+        const row = document.createElement("tr");
+
+        const status = product.quantity > 0 ? "In Stock" : "Out of Stock";
+
+        row.innerHTML = `
+            <td>${product.id}</td>
+            <td>${product.name}</td>
+            <td>${product.category}</td>
+            <td>₹${product.price.toLocaleString("en-IN")}</td>
+            <td>${product.quantity}</td>
+            <td>${status}</td>
+            <td>
+                <button class="delete-btn" data-id="${product.id}">
+                    Delete
+                </button>
+            </td>
+        `;
+
+        table.appendChild(row);
+    });
+
+    updateSummary();
+}
+
+form.addEventListener("submit", function (event: SubmitEvent): void {
+    event.preventDefault();
+
+    const name = nameInput.value.trim();
+    const price = Number(priceInput.value);
+    const quantity = Number(quantityInput.value);
+    const category = categoryInput.value;
+
+    if (
+        name === "" ||
+        !Number.isFinite(price) ||
+        price <= 0 ||
+        !Number.isInteger(quantity) ||
+        quantity < 0 ||
+        category === ""
+    ) {
+        alert("Please enter valid product details.");
+        return;
+    }
+
+    const newProduct: InventoryProduct = {
+        id: inventory.length > 0
+            ? Math.max(...inventory.map(product => product.id)) + 1
+            : 1,
+        name,
+        price,
+        quantity,
+        category
+    };
+
+    inventory.push(newProduct);
+
+    form.reset();
+    displayProducts(searchInput.value);
+});
+
+searchInput.addEventListener("input", function (): void {
+    displayProducts(searchInput.value);
+});
+
+table.addEventListener("click", function (event: MouseEvent): void {
+    const target = event.target;
+
+    if (target instanceof HTMLButtonElement && target.dataset.id) {
+        const id = Number(target.dataset.id);
+
+        inventory = inventory.filter(product => product.id !== id);
+
+        displayProducts(searchInput.value);
+    }
+});
+
+displayProducts();
