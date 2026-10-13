@@ -1,0 +1,94 @@
+
+interface Product {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+    category: string;
+    tags?: string[];
+}
+
+// Four sample products
+const products: Product[] = [
+    {
+        id: 1,
+        name: "Laptop",
+        price: 45000,
+        quantity: 5,
+        category: "Electronics",
+        tags: ["computer", "office"]
+    },
+    {
+        id: 2,
+        name: "T-Shirt",
+        price: 599,
+        quantity: 10,
+        category: "Clothing",
+        tags: ["fashion"]
+    },
+    {
+        id: 3,
+        name: "Notebook",
+        price: 100,
+        quantity: 20,
+        category: "Books"
+    },
+    {
+        id: 4,
+        name: "Headphones",
+        price: 1500,
+        quantity: 0,
+        category: "Accessories"
+    }
+];
+
+// Display product information
+function printProductInfo(product: Product): void {
+    console.log("Product Name:", product.name);
+    console.log("Price: ₹", product.price);
+    console.log("Quantity:", product.quantity);
+}
+
+// Calculate discount
+function calculateDiscount(
+    price: number,
+    discountPercent: number = 10
+): number {
+    return price - (price * discountPercent / 100);
+}
+
+// Apply bulk discount using map()
+function applyBulkDiscount(productList: Product[]): number[] {
+    return productList.map(product =>
+        calculateDiscount(product.price, 20)
+    );
+}
+
+// Get products that are in stock
+function getAvailableProducts(): Product[] {
+    return products.filter(product => product.quantity > 0);
+}
+
+// Interface inheritance
+interface DiscountedProduct extends Product {
+    discountPercent: number;
+}
+
+// Create a discounted product
+const discountedProduct: DiscountedProduct = {
+    id: 5,
+    name: "Smartphone",
+    price: 20000,
+    quantity: 3,
+    category: "Electronics",
+    discountPercent: 15
+};
+
+// Display sample results
+printProductInfo(products[0]);
+console.log("Price after discount:", calculateDiscount(1000));
+console.log("Bulk discounted prices:", applyBulkDiscount(products));
+console.log("Available products:", getAvailableProducts());
+console.log("Discounted product:", discountedProduct);
+
+export {};
